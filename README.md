@@ -5,8 +5,7 @@ VGG16 with two fully connected layers on top. Fully connected layer has Dropout 
 ![Model Part1](pictures/VGG16-two-fullyconnect-layer-part1.png)
 ![Model Part1](pictures/VGG16-two-fullyconnect-layer-part2.png)
 ##Parameter
-Optimizer is SGD with learning rate 0.0005 and decay 1e-6.
-
+Optimizer is SGD with learning rate 0.0005 and decay 1e-6, momentum=0.9.
 ##Result
 Show result in 80 epoch.
 Training accuracy will raise to 93% in the end for l2=0.1
