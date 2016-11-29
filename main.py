@@ -8,18 +8,22 @@ from keras.layers import Convolution2D, MaxPooling2D, ZeroPadding2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.utils import np_utils
 from keras.regularizers import l2, activity_l2
+import matplotlib
+matplotlib.use('Agg')
+import pylab as plt
 
 # path to the model weights files.
 weights_path = 'vgg16_weights.h5'
-top_model_weights_path = 'bottleneck_fc_model.h5'
+top_model_weights_path = 'bottleneck_fc_model_53.h5'
 # dimensions of our images.
-img_width, img_height = 224, 224 
+img_width, img_height = 175, 175 
 
-train_data_dir = 'data-lips/train'
-validation_data_dir = 'data-lips/val'
-nb_train_samples = 2600
+train_data_dir = 'dataset-small/train'
+validation_data_dir = 'dataset-small/val'
+#
+nb_train_samples = 23400
 nb_validation_samples = 400
-nb_epoch = 80
+nb_epoch = 20
 
 # build the VGG16 network
 model = Sequential()
@@ -80,11 +84,11 @@ print('Model loaded.')
 top_model = Sequential()
 top_model.add(Flatten(input_shape=model.output_shape[1:]))
 # with l2 regularizer
-top_model.add(Dense(4096, activation='relu', W_regularizer=l2(1)))
+top_model.add(Dense(4096, activation='relu', W_regularizer=l2(0.1)))
 # drop out layer
 top_model.add(Dropout(0.5))
 # with l2 regularizer
-top_model.add(Dense(4096, activation='relu', W_regularizer=l2(1)))
+top_model.add(Dense(4096, activation='relu', W_regularizer=l2(0.1)))
 # drop out layer
 top_model.add(Dropout(0.5))
 top_model.add(Dense(20, activation='softmax'))
@@ -109,7 +113,7 @@ top_model.summary()
 # compile the model with a SGD/momentum optimizer
 # and a very slow learning rate.
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.SGD(lr=0.00005, decay=1e-6, momentum=0.9),
+              optimizer=optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9),
               metrics=['accuracy'])
 
 
@@ -170,9 +174,27 @@ validation_generator = test_datagen.flow_from_directory(
         class_mode='categorical')
 
 # fine-tune the model
-model.fit_generator(
+history = model.fit_generator(
         train_generator,
         samples_per_epoch=nb_train_samples,
         nb_epoch=nb_epoch,
         validation_data=validation_generator,
         nb_val_samples=nb_validation_samples)
+model.save_weights("vgg-finetune-model.h5")
+
+# summarize history for accuracy
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig("accuracy-graph-for-vgg-finetune")
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('loss-graph-for-vgg-finetune')
