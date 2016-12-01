@@ -18,8 +18,8 @@ top_model_weights_path = 'bottleneck_fc_model_53.h5'
 # dimensions of our images.
 img_width, img_height = 175, 175 
 
-train_data_dir = 'dataset-small/train'
-validation_data_dir = 'dataset-small/val'
+train_data_dir = 'dataset/train'
+validation_data_dir = 'dataset/val'
 #
 nb_train_samples = 23400
 nb_validation_samples = 400
@@ -102,8 +102,8 @@ top_model.load_weights(top_model_weights_path)
 model.add(top_model)
 
 # print out a look at the model
-model.summary()
-top_model.summary()
+#model.summary()
+#top_model.summary()
 
 # set the first 25 layers (up to the last conv block)
 # to non-trainable (weights will not be updated)
@@ -113,7 +113,7 @@ top_model.summary()
 # compile the model with a SGD/momentum optimizer
 # and a very slow learning rate.
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.SGD(lr=0.0001, decay=1e-6, momentum=0.9),
+              optimizer=optimizers.SGD(lr=0.00005, decay=1e-6, momentum=0.9),
               metrics=['accuracy'])
 
 
@@ -146,7 +146,7 @@ else:
         rotation_range=0,
         width_shift_range=0.125,
         height_shift_range=0.125,
-        horizontal_flip=True,
+        horizontal_flip=False,
         vertical_flip=False,
         rescale=1./255,
         shear_range=0.2,
@@ -180,7 +180,7 @@ history = model.fit_generator(
         nb_epoch=nb_epoch,
         validation_data=validation_generator,
         nb_val_samples=nb_validation_samples)
-model.save_weights("vgg-finetune-model.h5")
+model.save_weights("vgg-finetune-model-lr=5e-5.h5")
 
 # summarize history for accuracy
 plt.plot(history.history['acc'])
@@ -189,7 +189,7 @@ plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("accuracy-graph-for-vgg-finetune")
+plt.savefig("accuracy-graph-for-vgg-finetune-lr=5e-5")
 # summarize history for loss
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
@@ -197,4 +197,4 @@ plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('loss-graph-for-vgg-finetune')
+plt.savefig('loss-graph-for-vgg-finetune-lr=5e-5')
