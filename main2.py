@@ -86,11 +86,11 @@ top_model = Sequential()
 top_model.add(Flatten(input_shape=model.output_shape[1:]))
 # with l2 regularizer
 #, W_regularizer=l2(0.1))
-top_model.add(Dense(4096, activation='relu'))
+top_model.add(Dense(4096, activation='relu', W_regularizer=l2(0.1)))
 # drop out layer
 top_model.add(Dropout(0.5))
 # with l2 regularizer
-top_model.add(Dense(4096, activation='relu'))
+top_model.add(Dense(4096, activation='relu', W_regularizer=l2(0.1)))
 # drop out layer
 top_model.add(Dropout(0.5))
 top_model.add(Dense(20, activation='softmax'))
@@ -115,7 +115,7 @@ model.add(top_model)
 # compile the model with a SGD/momentum optimizer
 # and a very slow learning rate.
 model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True),
+              optimizer=optimizers.SGD(lr=1e-4, decay=1e-6, momentum=0.9, nesterov=True),
               metrics=['accuracy'])
 
 
@@ -195,12 +195,14 @@ plt.title('model accuracy')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig("accuracy-graph-for-vgg-finetune-lr=1e-3&nestero")
+plt.savefig("accuracy-graph-for-vgg-finetune-lr=1e-4&nestero&l2=1e-1")
+
+plt.gcf().clear()
 # summarize history for loss
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
+plt.plot(history.history['loss'], color='r')
+plt.plot(history.history['val_loss'], color='cyan')
 plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
-plt.savefig('loss-graph-for-vgg-finetune-lr=1e-3$nestero')
+plt.savefig('loss-graph-for-vgg-finetune-lr=1e-4$nestero&l2=1e-1')
